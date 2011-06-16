@@ -5,12 +5,15 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.UI.DataVisualization.Charting;
 using System.IO;
+
 using System.Drawing;
+
 
 namespace MSChartSimple.Controllers
 {
     public class HomeController : Controller
     {
+
         private IList<DateTime> Today
         {
             get
@@ -96,7 +99,7 @@ namespace MSChartSimple.Controllers
             chart.Titles.Add(t);
         }
 
-      
+       
         private void AddLengend(Chart chart)
         {
             chart.Legends.Add("Legend");
@@ -141,6 +144,7 @@ namespace MSChartSimple.Controllers
             AddChartArea(chart);
 
            
+
             return chart;
         }
 
