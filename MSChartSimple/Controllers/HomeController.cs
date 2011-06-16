@@ -97,7 +97,7 @@ namespace MSChartSimple.Controllers
         }
 
         /// <summary>
-        /// 添加图例说明
+        /// ���ͼ��˵��
         /// </summary>
         /// <param name="chart"></param>
         private void AddLengend(Chart chart)
