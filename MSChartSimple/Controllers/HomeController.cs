@@ -117,8 +117,6 @@ namespace MSChartSimple.Controllers
             axisX.IntervalAutoMode = IntervalAutoMode.VariableCount;
             //axisX.Interval = 1;
             axisX.IntervalType = DateTimeIntervalType.Hours;
-       
-
 
             //chartArea.AxisX.IsLabelAutoFit = false;
             // chartArea.AxisX.IntervalOffsetType = DateTimeIntervalType.Minutes;
