@@ -96,10 +96,7 @@ namespace MSChartSimple.Controllers
             chart.Titles.Add(t);
         }
 
-        /// <summary>
-        /// 添加图例说明
-        /// </summary>
-        /// <param name="chart"></param>
+      
         private void AddLengend(Chart chart)
         {
             chart.Legends.Add("Legend");
