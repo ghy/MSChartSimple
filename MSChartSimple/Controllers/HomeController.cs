@@ -7,6 +7,7 @@ using System.Web.UI.DataVisualization.Charting;
 using System.IO;
 
 using System.Drawing;
+using System.Data.OleDb;
 
 
 namespace MSChartSimple.Controllers
@@ -44,7 +45,7 @@ namespace MSChartSimple.Controllers
         }
         public ActionResult Index()
         {
-            ViewBag.Message = "Welcome to ASP.NET MVC!";
+            ViewBag.Message = this.Server.MapPath("\\data");
 
             return View();
         }
@@ -57,22 +58,24 @@ namespace MSChartSimple.Controllers
 
         private void AddInSeries(Chart chart)
         {
+            string path = this.Server.MapPath("\\data");
             var series = chart.Series.Add("In");
             series.Color = Color.Blue;
             series.ChartType = SeriesChartType.Line;
             series.XValueType = ChartValueType.DateTime;
-            series.MarkerStyle = MarkerStyle.Circle;
+            //  series.MarkerStyle = MarkerStyle.Circle;
 
-
-            for (int i = 0; i < Today.Count; i++)
-            {
-                double y = double.NaN;
-                if (i < InValues.Count)
-                    y = InValues[i];
-                series.Points.AddXY(Today[i], y);
-            }
-
-
+            OleDbDataReader myReader = DataProvider.GetData(path);
+            //  series.ChartArea = "0";
+            series.Points.DataBindXY(myReader, myReader.GetName(1), myReader, myReader.GetName(2));
+            myReader.Close();
+            //for (int i = 0; i < Today.Count; i++)
+            //{
+            //    double y = double.NaN;
+            //    if (i < InValues.Count)
+            //        y = InValues[i];
+            //    series.Points.AddXY(Today[i], y);
+            //}
         }
 
 
@@ -82,34 +85,81 @@ namespace MSChartSimple.Controllers
             series.Color = Color.FromArgb(0, 201, 0);
             series.ChartType = SeriesChartType.Area;
             series.XValueType = ChartValueType.DateTime;
-            for (int i = 0; i < Today.Count; i++)
-            {
-                double y = double.NaN;
-                if (i < OutValues.Count)
-                    y = OutValues[i];
-                series.Points.AddXY(Today[i], y);
-            }
+            OleDbDataReader myReader = DataProvider.GetData(this.Server.MapPath("\\data"));
+            series.Points.DataBindXY(myReader, myReader.GetName(1), myReader, myReader.GetName(4));
+            myReader.Close();
+
+            //for (int i = 0; i < Today.Count; i++)
+            //{
+            //    double y = double.NaN;
+            //    if (i < OutValues.Count)
+            //        y = OutValues[i];
+            //    series.Points.AddXY(Today[i], y);
+            //}
 
         }
 
+        /// <summary>
+        /// 添加Title
+        /// </summary>
+        /// <param name="chart"></param>
         private void AddTitle(Chart chart)
         {
-            var t = new Title("IMG source streamed from Controller", Docking.Top,
+            var t = new Title("Utilization and Status graph", Docking.Top,
                     new Font("Trebuchet MS", 14, FontStyle.Bold), Color.FromArgb(26, 59, 105));
             chart.Titles.Add(t);
         }
 
-       
+        /// <summary>
+        /// 添加说明
+        /// </summary>
+        /// <param name="chart"></param>
         private void AddLengend(Chart chart)
         {
-            chart.Legends.Add("Legend");
+            var legend = chart.Legends.Add("Legend");
+            legend.Docking = Docking.Bottom;
+            legend.Alignment = StringAlignment.Center;
+
+            // Add Color column
+            LegendCellColumn firstColumn = new LegendCellColumn();
+            firstColumn.ColumnType = LegendCellColumnType.SeriesSymbol;
+            firstColumn.HeaderText = "Color";
+            firstColumn.HeaderBackColor = Color.WhiteSmoke;
+            legend.CellColumns.Add(firstColumn);
+
+            // Add Legend Text column
+            LegendCellColumn secondColumn = new LegendCellColumn();
+            secondColumn.ColumnType = LegendCellColumnType.Text;
+            secondColumn.HeaderText = "Name";
+            secondColumn.Text = "#LEGENDTEXT";
+            secondColumn.HeaderBackColor = Color.WhiteSmoke;
+            legend.CellColumns.Add(secondColumn);
+
+            // Add AVG cell column
+            LegendCellColumn avgColumn = new LegendCellColumn();
+            avgColumn.Text = "#AVG{N2}";
+            avgColumn.HeaderText = "Avg";
+            avgColumn.Name = "AvgColumn";
+            avgColumn.HeaderBackColor = Color.WhiteSmoke;
+            legend.CellColumns.Add(avgColumn);
+
+            // Set Min cell column attributes
+            LegendCellColumn minColumn = new LegendCellColumn();
+            minColumn.Text = "#MAX{N1}";
+            minColumn.HeaderText = "Max";
+            minColumn.Name = "MAXColumn";
+            minColumn.HeaderBackColor = Color.WhiteSmoke;
+            legend.CellColumns.Add(minColumn);
+
+
         }
 
-
-        private void AddChartArea(Chart chart)
+        /// <summary>
+        /// 设置X轴
+        /// </summary>
+        /// <param name="axisX"></param>
+        private void SetAxisX(Axis axisX)
         {
-            var chartArea = chart.ChartAreas.Add("chart");
-            var axisX = chartArea.AxisX;
             axisX.LabelStyle.Format = "HH:mm";
             axisX.ArrowStyle = AxisArrowStyle.Triangle;
             axisX.IsMarginVisible = false;
@@ -117,11 +167,29 @@ namespace MSChartSimple.Controllers
             axisX.IntervalAutoMode = IntervalAutoMode.VariableCount;
             //axisX.Interval = 1;
             axisX.IntervalType = DateTimeIntervalType.Hours;
+        }
 
-            //chartArea.AxisX.IsLabelAutoFit = false;
-            // chartArea.AxisX.IntervalOffsetType = DateTimeIntervalType.Minutes;
+        /// <summary>
+        /// 设置Y轴
+        /// </summary>
+        /// <param name="axisY"></param>
+        private void SetAxisY(Axis axisY)
+        {
+            axisY.ArrowStyle = AxisArrowStyle.Triangle;
+        }
 
-            // AddOutSeries(chart);
+
+        private void AddChartArea(Chart chart)
+        {
+            var chartArea = chart.ChartAreas.Add("chart");
+
+            //设置X轴
+            SetAxisX(chartArea.AxisX);
+
+            //设置Y轴
+            SetAxisY(chartArea.AxisY);
+
+            AddOutSeries(chart);
             AddInSeries(chart);
             AddLengend(chart);
         }
@@ -141,9 +209,11 @@ namespace MSChartSimple.Controllers
             chart.BorderlineDashStyle = ChartDashStyle.Solid;
             chart.BorderSkin.SkinStyle = BorderSkinStyle.Emboss;
 
+
             AddChartArea(chart);
 
-           
+            AddTitle(chart);
+
 
             return chart;
         }
@@ -159,16 +229,4 @@ namespace MSChartSimple.Controllers
         }
     }
 
-    public class StaticModel
-    {
-        public static List<int> createStaticData()
-        {
-            List<int> c_data = new List<int>();
-            c_data.Add(1);
-            c_data.Add(6);
-            c_data.Add(4);
-            c_data.Add(3);
-            return c_data;
-        }
-    }
 }
