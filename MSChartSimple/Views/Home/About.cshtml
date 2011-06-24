@@ -1,8 +1,55 @@
-﻿@{
-    ViewBag.Title = "About Us";
-}
+﻿
+<script lang="javascript" type="text/javascript">
+    var jqChart;
+    var data = [];
+    var yValue = 20;
+    var i;
+    for (i = 0; i < 20; i++) {
 
-<h2>About</h2>
-<p>
-     Put content here.
-</p>
+        yValue += Math.random() * 20 - 10;
+        data.push([i, yValue]);
+    }
+
+    $(document).ready(function () {
+        jqChart = $('#jqChart').jqChart({
+            title: { text: 'Live Data' },
+            axes: [
+                        {
+                            name: 'xAxis',
+                            type: 'linear',
+                            location: 'bottom'
+                        }
+                      ],
+            series: [
+                            {
+                                type: 'line',
+                                data: data,
+                                markers: { size: 8 }
+                            }
+                        ]
+        });
+
+        updateData();
+    });
+
+    function updateData() {
+
+        if (jqChart) {
+
+            yValue += Math.random() * 20 - 10;
+            data.push([i++, yValue]);
+
+            var xAxis = jqChart.findAxis('xAxis');
+            xAxis.setOptions({ minimum: i - 20, maximum: i });
+
+            jqChart.update();
+        }
+
+        setTimeout("updateData()", 1000);
+    }
+</script>
+<h2>
+    About</h2>
+<div>
+    <div id="jqChart" style="width: 500px; height: 300px;" />
+</div>

@@ -62,20 +62,20 @@ namespace MSChartSimple.Controllers
             var series = chart.Series.Add("In");
             series.Color = Color.Blue;
             series.ChartType = SeriesChartType.Line;
-            series.XValueType = ChartValueType.DateTime;
+            //series.XValueType = ChartValueType.DateTime;
             //  series.MarkerStyle = MarkerStyle.Circle;
 
-            OleDbDataReader myReader = DataProvider.GetData(path);
-            //  series.ChartArea = "0";
-            series.Points.DataBindXY(myReader, myReader.GetName(1), myReader, myReader.GetName(2));
-            myReader.Close();
-            //for (int i = 0; i < Today.Count; i++)
-            //{
-            //    double y = double.NaN;
-            //    if (i < InValues.Count)
-            //        y = InValues[i];
-            //    series.Points.AddXY(Today[i], y);
-            //}
+            //OleDbDataReader myReader = DataProvider.GetData(path);
+
+            //series.Points.DataBindXY(myReader, myReader.GetName(1), myReader, myReader.GetName(2));
+            //myReader.Close();
+            ////for (int i = 0; i < Today.Count; i++)
+            ////{
+            ////    double y = double.NaN;
+            ////    if (i < InValues.Count)
+            ////        y = InValues[i];
+            ////    series.Points.AddXY(Today[i], y);
+            ////}
         }
 
 
@@ -84,20 +84,76 @@ namespace MSChartSimple.Controllers
             var series = chart.Series.Add("Out");
             series.Color = Color.FromArgb(0, 201, 0);
             series.ChartType = SeriesChartType.Area;
-            series.XValueType = ChartValueType.DateTime;
-            OleDbDataReader myReader = DataProvider.GetData(this.Server.MapPath("\\data"));
-            series.Points.DataBindXY(myReader, myReader.GetName(1), myReader, myReader.GetName(4));
-            myReader.Close();
+            //series.XValueType = ChartValueType.DateTime;
+            //OleDbDataReader myReader = DataProvider.GetData(this.Server.MapPath("\\data"));
+            //series.Points.DataBindXY(myReader, myReader.GetName(1), myReader, myReader.GetName(4));
+            //myReader.Close();
 
-            //for (int i = 0; i < Today.Count; i++)
-            //{
-            //    double y = double.NaN;
-            //    if (i < OutValues.Count)
-            //        y = OutValues[i];
-            //    series.Points.AddXY(Today[i], y);
-            //}
+            ////for (int i = 0; i < Today.Count; i++)
+            ////{
+            ////    double y = double.NaN;
+            ////    if (i < OutValues.Count)
+            ////        y = OutValues[i];
+            ////    series.Points.AddXY(Today[i], y);
+            ////}
 
         }
+
+
+        private void addData(Chart chart)
+        {
+            Random rand = new Random();
+            foreach (Series series in chart.Series)
+            {
+                for (int i = 0; i < 100; i++)
+                {
+                    series.Points.AddY(rand.Next(i));
+                }
+            }
+
+
+            //Random rand = new Random();
+
+            //// Add several random point into each series
+            //foreach (Series series in chart.Series)
+            //{
+            //    double lastYValue = series.Points[series.Points.Count - 1].YValues[0];
+            //    double lastXValue = series.Points[series.Points.Count - 1].XValue + 1;
+            //    for (int pointIndex = 0; pointIndex < 5; pointIndex++)
+            //    {
+            //        lastYValue += rand.Next(-3, 4);
+            //        if (lastYValue >= 100.0)
+            //        {
+            //            lastYValue -= 25.0;
+            //        }
+            //        else if (lastYValue <= 10.0)
+            //        {
+            //            lastYValue += 25.0;
+            //        }
+            //        series.Points.AddXY(lastXValue++, lastYValue);
+            //    }
+            //}
+
+            //// Remove points from the left chart side if number of points exceeds 100.
+            //while (chart.Series[0].Points.Count > 100)
+            //{
+            //    // Remove series points
+            //    foreach (Series series in chart.Series)
+            //    {
+            //        series.Points.RemoveAt(0);
+            //    }
+
+            //}
+
+            //// Adjust categorical scale
+            //double axisMinimum = chart.Series[0].Points[0].XValue;
+            //chart.ChartAreas[0].AxisX.Minimum = axisMinimum;
+            //chart.ChartAreas[0].AxisX.Maximum = axisMinimum + 100;
+
+        }
+
+
+
 
         /// <summary>
         /// 添加Title
@@ -106,7 +162,7 @@ namespace MSChartSimple.Controllers
         private void AddTitle(Chart chart)
         {
             var t = new Title("Utilization and Status graph", Docking.Top,
-                    new Font("Trebuchet MS", 14, FontStyle.Bold), Color.FromArgb(26, 59, 105));
+                    new Font("Trebuchet MS", 10, FontStyle.Bold), Color.FromArgb(26, 59, 105));
             chart.Titles.Add(t);
         }
 
@@ -117,14 +173,15 @@ namespace MSChartSimple.Controllers
         private void AddLengend(Chart chart)
         {
             var legend = chart.Legends.Add("Legend");
+            legend.BackColor = Color.FromArgb(211, 223, 240);
             legend.Docking = Docking.Bottom;
             legend.Alignment = StringAlignment.Center;
+          
 
             // Add Color column
             LegendCellColumn firstColumn = new LegendCellColumn();
             firstColumn.ColumnType = LegendCellColumnType.SeriesSymbol;
             firstColumn.HeaderText = "Color";
-            firstColumn.HeaderBackColor = Color.WhiteSmoke;
             legend.CellColumns.Add(firstColumn);
 
             // Add Legend Text column
@@ -132,7 +189,6 @@ namespace MSChartSimple.Controllers
             secondColumn.ColumnType = LegendCellColumnType.Text;
             secondColumn.HeaderText = "Name";
             secondColumn.Text = "#LEGENDTEXT";
-            secondColumn.HeaderBackColor = Color.WhiteSmoke;
             legend.CellColumns.Add(secondColumn);
 
             // Add AVG cell column
@@ -140,7 +196,6 @@ namespace MSChartSimple.Controllers
             avgColumn.Text = "#AVG{N2}";
             avgColumn.HeaderText = "Avg";
             avgColumn.Name = "AvgColumn";
-            avgColumn.HeaderBackColor = Color.WhiteSmoke;
             legend.CellColumns.Add(avgColumn);
 
             // Set Min cell column attributes
@@ -148,10 +203,7 @@ namespace MSChartSimple.Controllers
             minColumn.Text = "#MAX{N1}";
             minColumn.HeaderText = "Max";
             minColumn.Name = "MAXColumn";
-            minColumn.HeaderBackColor = Color.WhiteSmoke;
             legend.CellColumns.Add(minColumn);
-
-
         }
 
         /// <summary>
@@ -160,7 +212,7 @@ namespace MSChartSimple.Controllers
         /// <param name="axisX"></param>
         private void SetAxisX(Axis axisX)
         {
-            axisX.LabelStyle.Format = "HH:mm";
+            //axisX.LabelStyle.Format = "HH:mm";
             axisX.ArrowStyle = AxisArrowStyle.Triangle;
             axisX.IsMarginVisible = false;
             //axisX.IsStartedFromZero = false;
@@ -197,23 +249,23 @@ namespace MSChartSimple.Controllers
         private Chart GenChart()
         {
             var chart = new Chart();
-            chart.Width = 800;
-            chart.Height = 400;
+            chart.Width = 400;
+            chart.Height = 200;
             chart.RenderType = RenderType.ImageTag;
-            chart.Palette = ChartColorPalette.BrightPastel;
+            //  chart.Palette = ChartColorPalette.BrightPastel;
             chart.BorderlineWidth = 2;
             chart.BorderWidth = 2;
             chart.BackColor = Color.FromArgb(211, 223, 240);
-            chart.BackGradientStyle = GradientStyle.TopBottom;
+            //    chart.BackGradientStyle = GradientStyle.TopBottom;
             chart.BorderColor = System.Drawing.Color.Black;
             chart.BorderlineDashStyle = ChartDashStyle.Solid;
-            chart.BorderSkin.SkinStyle = BorderSkinStyle.Emboss;
+            //  chart.BorderSkin.SkinStyle = BorderSkinStyle.Emboss;
 
 
             AddChartArea(chart);
 
             AddTitle(chart);
-
+            addData(chart);
 
             return chart;
         }
@@ -226,6 +278,12 @@ namespace MSChartSimple.Controllers
             chart.SaveImage(imageStream, ChartImageFormat.Png);
             imageStream.Position = 0;
             return new FileStreamResult(imageStream, "image/png");
+        }
+
+
+        public ActionResult JQChart()
+        {
+            return View();
         }
     }
 
